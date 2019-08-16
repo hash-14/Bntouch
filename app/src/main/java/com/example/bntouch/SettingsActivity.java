@@ -76,10 +76,7 @@ public class SettingsActivity extends AppCompatActivity {
         profile_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent galleryIntent = new Intent();
-                galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("image/*");
-                startActivityForResult(galleryIntent, GALLERY_PICK);
+                CropImage.startPickImageActivity(SettingsActivity.this);
             }
         });
     }
@@ -161,12 +158,16 @@ public class SettingsActivity extends AppCompatActivity {
 
         if(resultCode == RESULT_OK && data != null) {
             switch (requestCode) {
-                case GALLERY_PICK:
+                case CropImage.PICK_IMAGE_CHOOSER_REQUEST_CODE:
                     Uri imageUri = data.getData();
-                    CropImage.activity()
+                    CropImage.activity(imageUri)
                             .setGuidelines(CropImageView.Guidelines.ON)
+                            .setMultiTouchEnabled(true)
                             .setAspectRatio(1, 1)
                             .start(this);
+                    break;
+                case CropImage.CAMERA_CAPTURE_PERMISSIONS_REQUEST_CODE:
+
                     break;
                 case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
                     CropImage.ActivityResult result = CropImage.getActivityResult(data);
@@ -177,7 +178,7 @@ public class SettingsActivity extends AppCompatActivity {
                         loadingBar.show();
                         resultUri = result.getUri();
                         imageUriOnLoad = resultUri.toString();
-                        StorageReference filePath = userProfileImagesRef.child(currentUserID + ".jpg");
+                        final StorageReference filePath = userProfileImagesRef.child(currentUserID + ".jpg");
                         filePath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
