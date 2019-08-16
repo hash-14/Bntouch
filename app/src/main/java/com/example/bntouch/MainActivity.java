@@ -30,6 +30,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+
 public class MainActivity extends AppCompatActivity {
     private Toolbar main_page_toolbar;
     private ViewPager main_tabs_pager;
@@ -37,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private TabsAccessorAdapter tabsAccessorAdapter;
 
     private FirebaseUser currentUser;
+    private String currentUserID;
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
     @Override
@@ -68,7 +73,24 @@ public class MainActivity extends AppCompatActivity {
         if(currentUser == null){
             SendUserToLoginActivity();//if user is not logged in
         } else {
+            updateUserStatus("online");
             VerifyUserExistance();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(currentUser != null) {
+            updateUserStatus("offline");
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(currentUser != null) {
+            updateUserStatus("offline");
         }
     }
 
@@ -177,5 +199,24 @@ public class MainActivity extends AppCompatActivity {
     private void SendUserToFindFriendsActivity() {
         Intent findFriendsIntent = new Intent(MainActivity.this, FindFriendsActivity.class);
         startActivity(findFriendsIntent);
+    }
+
+    private void updateUserStatus(String state){
+        String saveCurrentTime, saveCurrentDate;
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat currentDate = new SimpleDateFormat("dd-MM-yyy");
+        saveCurrentDate = currentDate.format(calendar.getTime());
+
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
+        saveCurrentTime = currentTime.format(calendar.getTime());
+
+        HashMap<String, Object> onlineStatMap =  new HashMap<>();
+        onlineStatMap.put("time", saveCurrentTime);
+        onlineStatMap.put("date", saveCurrentDate);
+        onlineStatMap.put("state", state);
+        currentUserID = mAuth.getCurrentUser().getUid();
+        rootRef.child("Users").child(currentUserID).child("userState")
+                .updateChildren(onlineStatMap);
+
     }
 }
