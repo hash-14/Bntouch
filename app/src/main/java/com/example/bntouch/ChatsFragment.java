@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -35,7 +37,7 @@ public class ChatsFragment extends Fragment {
     private View privateChatsView;
 
     private RecyclerView chats_list;
-    private DatabaseReference chatsRef, usersRef;
+    private DatabaseReference chatsRef, usersRef, messagesRef;
     private FirebaseAuth mAuth;
     private String currentUserID;
 
@@ -55,6 +57,7 @@ public class ChatsFragment extends Fragment {
         currentUserID = mAuth.getCurrentUser().getUid();
         chatsRef = FirebaseDatabase.getInstance().getReference().child("Contacts").child(currentUserID);
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        messagesRef = FirebaseDatabase.getInstance().getReference().child("Messages").child(currentUserID);
         return privateChatsView;
     }
 
@@ -83,7 +86,7 @@ public class ChatsFragment extends Fragment {
 
                             final String username = dataSnapshot.child("name").getValue().toString();
                             chatsViewHolder.userName.setText(username);
-                            chatsViewHolder.userStatus.setText("Last Seen: " + "\n" + "Date " + " Time");
+                           /* chatsViewHolder.userStatus.setText("Last Seen: " + "\n" + "Date " + " Time");
 
                             if(dataSnapshot.child("userState").hasChild("state")){
                                 String state = dataSnapshot.child("userState").child("state").getValue().toString();
@@ -96,7 +99,7 @@ public class ChatsFragment extends Fragment {
                                 }
                             } else {
                                 chatsViewHolder.userStatus.setText("offline");
-                            }
+                            }*/
 
                             chatsViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -116,8 +119,39 @@ public class ChatsFragment extends Fragment {
 
                     }
                 });
-            }
 
+                messagesRef.child(userIDs).orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                        if(dataSnapshot.exists()) {
+                            if (dataSnapshot.hasChild("message")) {
+                                String setStatusToLastMessage = dataSnapshot.child("message").getValue().toString();
+                                chatsViewHolder.userStatus.setText(setStatusToLastMessage);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+            //LmQvER3d31OVOwT1Ls3
             @NonNull
             @Override
             public ChatsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
