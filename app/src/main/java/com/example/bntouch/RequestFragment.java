@@ -183,23 +183,43 @@ public class RequestFragment extends Fragment {
                                     }
                                     else if(type.equals("sent")) {
                                         usersRef.child(list_user_id).addValueEventListener(new ValueEventListener() {
+                                                                   @Override
+                                                                   public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                                                       requestsViewHolder.itemView.findViewById(R.id.request_cancel_button).setVisibility(View.VISIBLE);
+                                                                       if (dataSnapshot.hasChild("image")) {
+                                                                           final String requestUserImage = dataSnapshot.child("image").getValue().toString();
+                                                                           Picasso.get().load(requestUserImage).placeholder(R.drawable.profile_image).into(requestsViewHolder.profileImage);
+                                                                       }
+                                                                       final String requestUserName = dataSnapshot.child("name").getValue().toString();
+
+                                                                       requestsViewHolder.userName.setText(requestUserName);
+                                                                       requestsViewHolder.userStatus.setText("Cacnel Request");
+                                                                       requestsViewHolder.itemView.findViewById(R.id.request_cancel_button).setOnClickListener(new View.OnClickListener() {
+                                                                           @Override
+                                                                           public void onClick(View v) {
+                                                                               chatRequestRef.child(currentUserID).child(list_user_id).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                                   @Override
+                                                                                   public void onComplete(@NonNull Task<Void> task) {
+                                                                                       if(task.isSuccessful()) {
+                                                                                           chatRequestRef.child(list_user_id).child(currentUserID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                                                @Override
-                                                                                               public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                                                                                   requestsViewHolder.itemView.findViewById(R.id.request_cancel_button).setVisibility(View.VISIBLE);
-                                                                                                   if (dataSnapshot.hasChild("image")) {
-                                                                                                       final String requestUserImage = dataSnapshot.child("image").getValue().toString();
-                                                                                                       Picasso.get().load(requestUserImage).placeholder(R.drawable.profile_image).into(requestsViewHolder.profileImage);
+                                                                                               public void onComplete(@NonNull Task<Void> task) {
+                                                                                                   if(task.isSuccessful()) {
+                                                                                                       Toast.makeText(getContext(), "Request Canceled", Toast.LENGTH_LONG).show();
                                                                                                    }
-                                                                                                   final String requestUserName = dataSnapshot.child("name").getValue().toString();
-
-                                                                                                   requestsViewHolder.userName.setText(requestUserName);
-                                                                                                   requestsViewHolder.userStatus.setText("Cacnel Request");
                                                                                                }
-                                                                                                @Override
-                                                                                                public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                                                                                }
                                                                                            });
+                                                                                       }
+                                                                                   }
+                                                                               });
+                                                                           }
+                                                                       });
+                                                                   }
+                                                                    @Override
+                                                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                                                    }
+                                                               });
                                     }
                                 }
                             }
