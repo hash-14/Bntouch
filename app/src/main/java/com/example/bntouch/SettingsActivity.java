@@ -183,19 +183,25 @@ public class SettingsActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                                 if(task.isSuccessful()){
-                                    Toast.makeText(SettingsActivity.this, "Profile Image Uploaded Successfully", Toast.LENGTH_LONG).show();
-                                    rootRef.child("Users").child(currentUserID).child("image")
-                                            .setValue(imageUriOnLoad)
-                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if(task.isSuccessful()) {
-                                                        Toast.makeText(SettingsActivity.this, "Profile Image Saved in DB Successfully", Toast.LENGTH_LONG).show();
-                                                    } else {
-                                                        Toast.makeText(SettingsActivity.this, "Error " + task.getException().toString(), Toast.LENGTH_LONG).show();
-                                                    }
-                                                }
-                                            });
+                                    filePath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            Toast.makeText(SettingsActivity.this, "Profile Image Uploaded Successfully", Toast.LENGTH_LONG).show();
+                                            rootRef.child("Users").child(currentUserID).child("image")
+                                                    .setValue(uri.toString())
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if(task.isSuccessful()) {
+                                                                Toast.makeText(SettingsActivity.this, "Profile Image Saved in DB Successfully", Toast.LENGTH_LONG).show();
+                                                            } else {
+                                                                Toast.makeText(SettingsActivity.this, "Error " + task.getException().toString(), Toast.LENGTH_LONG).show();
+                                                            }
+                                                        }
+                                                    });
+                                        }
+                                    });
+
                                 } else{
                                     Toast.makeText(SettingsActivity.this, "Error " + task.getException().toString(), Toast.LENGTH_LONG).show();
                                 }
