@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -79,9 +80,23 @@ public class ChatsFragment extends Fragment {
                                 image[0] = dataSnapshot.child("image").getValue().toString();
                                 Picasso.get().load(image[0]).placeholder(R.drawable.profile_image).into(chatsViewHolder.profileImage);
                             }
+
                             final String username = dataSnapshot.child("name").getValue().toString();
                             chatsViewHolder.userName.setText(username);
                             chatsViewHolder.userStatus.setText("Last Seen: " + "\n" + "Date " + " Time");
+
+                            if(dataSnapshot.child("userState").hasChild("state")){
+                                String state = dataSnapshot.child("userState").child("state").getValue().toString();
+                                String date = dataSnapshot.child("userState").child("date").getValue().toString();
+                                String time = dataSnapshot.child("userState").child("time").getValue().toString();
+                                if(state.equals("online")) {
+                                    chatsViewHolder.userStatus.setText("online");
+                                } else if(state.equals("offline")) {
+                                    chatsViewHolder.userStatus.setText("Last seen: " + date + " " + time);
+                                }
+                            } else {
+                                chatsViewHolder.userStatus.setText("offline");
+                            }
 
                             chatsViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                                 @Override

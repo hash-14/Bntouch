@@ -27,6 +27,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class ChatActivity extends AppCompatActivity {
 
         custom_profile_name.setText(messageRecieverName);
         Picasso.get().load(messageRecieverImage).placeholder(R.drawable.profile_image).into(custom_profile_image);
-
+        DisplayLastSeen();
         send_chat_message_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -176,5 +177,31 @@ public class ChatActivity extends AppCompatActivity {
             });
 
         }
+    }
+
+    private void DisplayLastSeen(){
+        rootRef.child("Users").child(messageRecieverID)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.child("userState").hasChild("state")){
+                            String state = dataSnapshot.child("userState").child("state").getValue().toString();
+                            String date = dataSnapshot.child("userState").child("date").getValue().toString();
+                            String time = dataSnapshot.child("userState").child("time").getValue().toString();
+                            if(state.equals("online")) {
+                                custom_profile_last_seen.setText("online");
+                            } else if(state.equals("offline")) {
+                                custom_profile_last_seen.setText("Last seen: " + date + " " + time);
+                            }
+                        } else {
+                            custom_profile_last_seen.setText("offline");
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
     }
 }

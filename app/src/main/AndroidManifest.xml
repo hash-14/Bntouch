@@ -28,7 +28,8 @@
         <activity android:name=".LoginActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"
+                        android:launchMode="singleTask"/>
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
@@ -36,6 +37,8 @@
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
             android:theme="@style/Base.Theme.AppCompat" />
+        <service android:name=".ClosingService"
+            android:stopWithTask="false"/>
     </application>
 
 </manifest>

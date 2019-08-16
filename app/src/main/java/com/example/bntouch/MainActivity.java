@@ -1,5 +1,7 @@
 package com.example.bntouch;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
@@ -28,11 +30,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar main_page_toolbar;
@@ -40,7 +41,6 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout main_tabs;
     private TabsAccessorAdapter tabsAccessorAdapter;
 
-    private FirebaseUser currentUser;
     private String currentUserID;
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        startService(new Intent(getBaseContext(), ClosingService.class));
 
         //Set main title for the app;
         main_page_toolbar = (Toolbar)findViewById(R.id.main_page_toolbar);
@@ -63,14 +64,14 @@ public class MainActivity extends AppCompatActivity {
         main_tabs.setupWithViewPager(main_tabs_pager);
         //end
         mAuth = FirebaseAuth.getInstance();
-        currentUser = mAuth.getCurrentUser();
         rootRef = FirebaseDatabase.getInstance().getReference();
     }
     @Override
     protected void onStart(){
         super.onStart();
-
+        FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser == null){
+            mAuth.signOut();
             SendUserToLoginActivity();//if user is not logged in
         } else {
             updateUserStatus("online");
@@ -81,20 +82,32 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if(currentUser != null) {
+        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
+
+        // check if the app is still visible
+        if (!tasks.get(0).topActivity.getPackageName().equals(getPackageName())) {
+            // for some reason(HOME, BACK, RECENT APPS, etc.) the app is no longer visible
+            // do your thing here
             updateUserStatus("offline");
+        } else {
+            // app is still visible, switched to other activity
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null) {
             updateUserStatus("offline");
         }
     }
 
     private void VerifyUserExistance() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
         String currentUserID = currentUser.getUid();
         rootRef.child("Users").child(currentUserID).addValueEventListener(new ValueEventListener() {
             @Override
@@ -140,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
         super.onOptionsItemSelected(menuItem);
         switch (menuItem.getItemId()) {
             case R.id.main_logout_option:
+                updateUserStatus("offline");
                 mAuth.signOut();
                 SendUserToLoginActivity();
                 break;
