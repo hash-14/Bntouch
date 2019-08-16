@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "376176745733",
+    "firebase_url": "https://bntouch-775e8.firebaseio.com",
+    "project_id": "bntouch-775e8",
+    "storage_bucket": "bntouch-775e8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:376176745733:android:b871a2b3cfc7ef08",
+        "android_client_info": {
+          "package_name": "com.example.bntouch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "376176745733-a9l6u6bfbd8seb6t01dasejokeut2efo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOmn-RDcz1KE8Ri-U2qsHsQySEmnx-56Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "376176745733-a9l6u6bfbd8seb6t01dasejokeut2efo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
