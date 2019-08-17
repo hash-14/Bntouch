@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -63,23 +64,40 @@ public class MessagerAdapter extends RecyclerView.Adapter<MessagerAdapter.Messag
 
             }
         });
+
+        holder.receiver_message_text.setVisibility(View.GONE);
+        holder.receiver_profile_image.setVisibility(View.GONE);
+        holder.sender_message_text.setVisibility(View.GONE);
+        holder.message_sender_image_view.setVisibility(View.GONE);
+        holder.message_receiver_image_view.setVisibility(View.GONE);
+
+
+
         if(fromMessageType.equals("text")) {
-            holder.receiver_message_text.setVisibility(View.INVISIBLE);
-            holder.receiver_profile_image.setVisibility(View.INVISIBLE);
-            holder.sender_message_text.setVisibility(View.INVISIBLE);
 
             if(fromUserID.equals(messageSenderId)) {
                 holder.sender_message_text.setVisibility(View.VISIBLE);
                 holder.sender_message_text.setBackgroundResource(R.drawable.sender_message_layout);
                 holder.sender_message_text.setTextColor(Color.BLACK);
-                holder.sender_message_text.setText(messages.getMessage());
+                holder.sender_message_text.setText(messages.getMessage() +  "\n\n" + messages.getTime() + "-" +messages.getDate());
+
             } else {
                 holder.receiver_message_text.setVisibility(View.VISIBLE);
                 holder.receiver_profile_image.setVisibility(View.VISIBLE);
 
                 holder.receiver_message_text.setBackgroundResource(R.drawable.reveiver_message_layout);
                 holder.receiver_message_text.setTextColor(Color.BLACK);
-                holder.receiver_message_text.setText(messages.getMessage());
+                holder.receiver_message_text.setText(messages.getMessage() +  "\n\n" + messages.getTime() + "-" +messages.getDate());
+            }
+        } else if(fromMessageType.equals("image")) {
+            if(fromUserID.equals(messageSenderId)) {
+                holder.message_sender_image_view.setVisibility(View.VISIBLE);
+                Picasso.get().load(messages.getMessage()).into(holder.message_sender_image_view);
+            } else {
+                holder.receiver_profile_image.setVisibility(View.VISIBLE);
+                holder.message_receiver_image_view.setVisibility(View.VISIBLE);
+
+                Picasso.get().load(messages.getMessage()).into(holder.message_receiver_image_view);
             }
         }
     }
@@ -92,6 +110,7 @@ public class MessagerAdapter extends RecyclerView.Adapter<MessagerAdapter.Messag
     public class MessageViewHolder extends RecyclerView.ViewHolder{
         public TextView receiver_message_text,sender_message_text;
         public CircleImageView receiver_profile_image;
+        public ImageView message_sender_image_view, message_receiver_image_view;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -99,6 +118,8 @@ public class MessagerAdapter extends RecyclerView.Adapter<MessagerAdapter.Messag
             sender_message_text = (TextView)itemView.findViewById(R.id.sender_message_text);
             receiver_message_text = (TextView)itemView.findViewById(R.id.receiver_message_text);
             receiver_profile_image = (CircleImageView)itemView.findViewById(R.id.receiver_profile_image);
+            message_sender_image_view = (ImageView)itemView.findViewById(R.id.message_sender_image_view);
+            message_receiver_image_view = (ImageView)itemView.findViewById(R.id.message_receiver_image_view);
         }
     }
 }

@@ -127,6 +127,8 @@ public class ChatsFragment extends Fragment {
                             if (dataSnapshot.hasChild("message")) {
                                 String setStatusToLastMessage = dataSnapshot.child("message").getValue().toString();
                                 chatsViewHolder.userStatus.setText(setStatusToLastMessage);
+                            } else {
+                                chatsViewHolder.userStatus.setText("");
                             }
                         }
                     }
