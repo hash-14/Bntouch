@@ -92,6 +92,14 @@ public class ChatActivity extends AppCompatActivity {
         Picasso.get().load(messageRecieverImage).placeholder(R.drawable.profile_image).into(custom_profile_image);
         DisplayLastSeen();
 
+        messagerAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+
+            }
+        });
+
         EventMessageAddedtoDB();
 
         send_chat_message_button.setOnClickListener(new View.OnClickListener() {
@@ -321,7 +329,6 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void EventMessageAddedtoDB() {
-        messagesList.clear();
         rootRef.child("Messages").child(messageSenderID).child(messageRecieverID).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -330,17 +337,23 @@ public class ChatActivity extends AppCompatActivity {
                 messagesList.add(messages);
 
                 messagerAdapter.notifyDataSetChanged();
+
                 private_messages_list_of_users.smoothScrollToPosition(private_messages_list_of_users.getAdapter().getItemCount());
             }
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                messagerAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-
+                /*for(int i = 0; i < messagesList.size(); i++) {
+                    if(messagesList.get(i).getMessageID().equals(dataSnapshot.getKey())) {
+                        messagesList.remove(i);
+                    }
+                }
+                messagerAdapter.notifyDataSetChanged();*/
             }
 
             @Override
@@ -350,7 +363,6 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
             }
         });
     }
