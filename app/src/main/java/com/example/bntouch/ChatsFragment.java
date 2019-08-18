@@ -86,6 +86,7 @@ public class ChatsFragment extends Fragment {
 
                             final String username = dataSnapshot.child("name").getValue().toString();
                             chatsViewHolder.userName.setText(username);
+                            chatsViewHolder.userStatus.setText("");
                            /* chatsViewHolder.userStatus.setText("Last Seen: " + "\n" + "Date " + " Time");
 
                             if(dataSnapshot.child("userState").hasChild("state")){

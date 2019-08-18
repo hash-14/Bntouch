@@ -327,7 +327,6 @@ public class ChatActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
                 Messages messages = dataSnapshot.getValue(Messages.class);
-                System.out.println("ID " + messages.toString());
                 messagesList.add(messages);
 
                 messagerAdapter.notifyDataSetChanged();
@@ -363,7 +362,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void SendMessage() {
         String messageText = input_chat_message.getText().toString();
-
+        input_chat_message.setText("");
         if(TextUtils.isEmpty(messageText)) {
             Toast.makeText(this, "Please type a message...", Toast.LENGTH_SHORT).show();
         } else{
@@ -396,7 +395,6 @@ public class ChatActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(ChatActivity.this, "Error " + task.getException().toString(), Toast.LENGTH_SHORT).show();
                     }
-                    input_chat_message.setText("");
                 }
             });
 
