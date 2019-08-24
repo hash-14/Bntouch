@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.bntouch.functionshelper.ChatRequestsHelper;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,15 +40,16 @@ public class RequestFragment extends Fragment {
     private View requestsFragmentView;
     private RecyclerView chat_requests_lists;
 
+    private ChatRequestsHelper chatRequestsHelper;
+
     private FirebaseAuth mAuth;
-    private DatabaseReference chatRequestRef, usersRef, contactsRef;
+    private DatabaseReference usersRef, contactsRef;
 
     private String currentUserID;
 
     public RequestFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,7 +62,9 @@ public class RequestFragment extends Fragment {
         chat_requests_lists.setLayoutManager(new LinearLayoutManager(getContext()));
 
         contactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
-        chatRequestRef = FirebaseDatabase.getInstance().getReference().child("Chat Requests");
+
+        chatRequestsHelper = new ChatRequestsHelper(getResources().getString(R.string.request_type));
+
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
         return requestsFragmentView;
     }
@@ -71,7 +75,7 @@ public class RequestFragment extends Fragment {
 
         FirebaseRecyclerOptions<Contacts> options =
                 new FirebaseRecyclerOptions.Builder<Contacts>()
-                        .setQuery(chatRequestRef.child(currentUserID), Contacts.class)
+                        .setQuery(chatRequestsHelper.getConnectionHandler().getDatabaseReference().child(currentUserID), Contacts.class)
                         .build();
         FirebaseRecyclerAdapter<Contacts, RequestsViewHolder> adapter =
                 new FirebaseRecyclerAdapter<Contacts, RequestsViewHolder>(options) {
@@ -120,21 +124,7 @@ public class RequestFragment extends Fragment {
                                                                             @Override
                                                                             public void onComplete(@NonNull Task<Void> task) {
                                                                                 if(task.isSuccessful()) {
-                                                                                    chatRequestRef.child(currentUserID).child(list_user_id).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                        @Override
-                                                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                                                            if(task.isSuccessful()) {
-                                                                                                chatRequestRef.child(list_user_id).child(currentUserID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                                    @Override
-                                                                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                                                                        if(task.isSuccessful()) {
-                                                                                                            Toast.makeText(getContext(), "New Contact Saved", Toast.LENGTH_LONG).show();
-                                                                                                        }
-                                                                                                    }
-                                                                                                });
-                                                                                            }
-                                                                                        }
-                                                                                    });
+                                                                                    chatRequestsHelper.removeBothChatRequest(currentUserID, list_user_id);
                                                                                 }
                                                                             }
                                                                         });
@@ -148,21 +138,7 @@ public class RequestFragment extends Fragment {
                                                                         });
                                                                         break;
                                                                     case 1://Cancel
-                                                                        chatRequestRef.child(currentUserID).child(list_user_id).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                            @Override
-                                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                                if(task.isSuccessful()) {
-                                                                                    chatRequestRef.child(list_user_id).child(currentUserID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                        @Override
-                                                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                                                            if(task.isSuccessful()) {
-                                                                                                Toast.makeText(getContext(), "Contact Deleted", Toast.LENGTH_LONG).show();
-                                                                                            }
-                                                                                        }
-                                                                                    });
-                                                                                }
-                                                                            }
-                                                                        });
+                                                                        chatRequestsHelper.removeBothChatRequest(currentUserID, list_user_id);
                                                                         break;
                                                                     default:
                                                                         break;
@@ -197,21 +173,7 @@ public class RequestFragment extends Fragment {
                                                                        requestsViewHolder.itemView.findViewById(R.id.request_cancel_button).setOnClickListener(new View.OnClickListener() {
                                                                            @Override
                                                                            public void onClick(View v) {
-                                                                               chatRequestRef.child(currentUserID).child(list_user_id).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                   @Override
-                                                                                   public void onComplete(@NonNull Task<Void> task) {
-                                                                                       if(task.isSuccessful()) {
-                                                                                           chatRequestRef.child(list_user_id).child(currentUserID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                                               @Override
-                                                                                               public void onComplete(@NonNull Task<Void> task) {
-                                                                                                   if(task.isSuccessful()) {
-                                                                                                       Toast.makeText(getContext(), "Request Canceled", Toast.LENGTH_LONG).show();
-                                                                                                   }
-                                                                                               }
-                                                                                           });
-                                                                                       }
-                                                                                   }
-                                                                               });
+                                                                               chatRequestsHelper.removeBothChatRequest(currentUserID, list_user_id);
                                                                            }
                                                                        });
                                                                    }

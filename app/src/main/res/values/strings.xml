@@ -3,4 +3,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- TODO:Set database fields name to be accessed from the whole project -->
+    <string name="request_type">request_type</string>
 </resources>
