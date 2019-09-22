@@ -16,9 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.bntouch.functionshelper.ChatRequestsHelper;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -40,7 +38,7 @@ public class RequestFragment extends Fragment {
     private View requestsFragmentView;
     private RecyclerView chat_requests_lists;
 
-    private ChatRequestsHelper chatRequestsHelper;
+    //private ChatRequestsHelper chatRequestsHelper;
 
     private FirebaseAuth mAuth;
     private DatabaseReference usersRef, contactsRef;
@@ -63,7 +61,7 @@ public class RequestFragment extends Fragment {
 
         contactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
 
-        chatRequestsHelper = new ChatRequestsHelper(getResources().getString(R.string.request_type));
+        //chatRequestsHelper = new ChatRequestsHelper(getResources().getString(R.string.request_type));
 
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
         return requestsFragmentView;
@@ -73,7 +71,7 @@ public class RequestFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        FirebaseRecyclerOptions<Contacts> options =
+        /*FirebaseRecyclerOptions<Contacts> options =
                 new FirebaseRecyclerOptions.Builder<Contacts>()
                         .setQuery(chatRequestsHelper.getConnectionHandler().getDatabaseReference().child(currentUserID), Contacts.class)
                         .build();
@@ -202,7 +200,7 @@ public class RequestFragment extends Fragment {
                     }
                 };
         chat_requests_lists.setAdapter(adapter);
-        adapter.startListening();
+        adapter.startListening();*/
     }
 
     public static class RequestsViewHolder extends RecyclerView.ViewHolder{
@@ -217,7 +215,6 @@ public class RequestFragment extends Fragment {
             profileImage = itemView.findViewById(R.id.users_profile_image_find_friends);
             acceptButton = itemView.findViewById(R.id.request_accept_button);
             cancelButton = itemView.findViewById(R.id.request_cancel_button);
-
         }
     }
 }

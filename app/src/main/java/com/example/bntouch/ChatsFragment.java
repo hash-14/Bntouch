@@ -54,17 +54,17 @@ public class ChatsFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         chats_list = (RecyclerView)privateChatsView.findViewById(R.id.chats_list);
         chats_list.setLayoutManager(new LinearLayoutManager(getContext()));
-        currentUserID = mAuth.getCurrentUser().getUid();
-        chatsRef = FirebaseDatabase.getInstance().getReference().child("Contacts").child(currentUserID);
-        usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
-        messagesRef = FirebaseDatabase.getInstance().getReference().child("Messages").child(currentUserID);
+        //currentUserID = mAuth.getCurrentUser().getUid();
+        //chatsRef = FirebaseDatabase.getInstance().getReference().child("Contacts").child(currentUserID);
+        //usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        //messagesRef = FirebaseDatabase.getInstance().getReference().child("Messages").child(currentUserID);
         return privateChatsView;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        FirebaseRecyclerOptions<Contacts> options =
+        /*FirebaseRecyclerOptions<Contacts> options =
                 new FirebaseRecyclerOptions.Builder<Contacts>()
                     .setQuery(chatsRef, Contacts.class)
                     .build();
@@ -87,7 +87,7 @@ public class ChatsFragment extends Fragment {
                             final String username = dataSnapshot.child("name").getValue().toString();
                             chatsViewHolder.userName.setText(username);
                             chatsViewHolder.userStatus.setText("");
-                           /* chatsViewHolder.userStatus.setText("Last Seen: " + "\n" + "Date " + " Time");
+                           *//* chatsViewHolder.userStatus.setText("Last Seen: " + "\n" + "Date " + " Time");
 
                             if(dataSnapshot.child("userState").hasChild("state")){
                                 String state = dataSnapshot.child("userState").child("state").getValue().toString();
@@ -100,7 +100,7 @@ public class ChatsFragment extends Fragment {
                                 }
                             } else {
                                 chatsViewHolder.userStatus.setText("offline");
-                            }*/
+                            }*//*
 
                             chatsViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -164,7 +164,7 @@ public class ChatsFragment extends Fragment {
         };
 
         chats_list.setAdapter(adapter);
-        adapter.startListening();
+        adapter.startListening();*/
     }
 
     public static class ChatsViewHolder extends RecyclerView.ViewHolder {

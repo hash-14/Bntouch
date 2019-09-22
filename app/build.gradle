@@ -21,6 +21,9 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.volley:volley:v1.0'
+    implementation 'com.github.seventhmoon:ipapi-volley:v1.0'
+    implementation 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
     //noinspection GradleCompatible
     implementation 'androidx.appcompat:appcompat:1.0.0-beta01'
     implementation 'com.google.android.material:material:1.0.0-beta01'

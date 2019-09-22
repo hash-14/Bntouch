@@ -15,6 +15,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
+        <meta-data android:name="AA_DB_NAME" android:value="UserInformation.db" />
+        <meta-data android:name="AA_DB_VERSION" android:value="5" />
+        <meta-data
+            android:name="AA_MODELS"
+            android:value="com.example.bntouch.Database.UserInformationDB" />
+
         <activity android:name=".ImageViewrActivity"></activity>
         <activity
             android:name=".ChatActivity"

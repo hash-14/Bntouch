@@ -1,10 +1,14 @@
 package com.example.bntouch;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 
+import com.activeandroid.ActiveAndroid;
+import com.activeandroid.Configuration;
+import com.activeandroid.query.Select;
+import com.activeandroid.query.Update;
+import com.example.bntouch.Database.UserInformationDB;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
@@ -13,6 +17,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -23,17 +29,8 @@ import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar main_page_toolbar;
@@ -50,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         startService(new Intent(getBaseContext(), ClosingService.class));
 
+        initializeDB();
         //Set main title for the app;
         main_page_toolbar = (Toolbar)findViewById(R.id.main_page_toolbar);
         setSupportActionBar(main_page_toolbar);
@@ -66,23 +64,24 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
     }
+
+    protected void initializeDB() {
+        Configuration.Builder configurationBuilder = new Configuration.Builder(this);
+        configurationBuilder.addModelClasses(UserInformationDB.class);
+
+        ActiveAndroid.initialize(configurationBuilder.create());
+    }
+
     @Override
     protected void onStart(){
         super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser == null){
-            mAuth.signOut();
-            SendUserToLoginActivity();//if user is not logged in
-        } else {
-            updateUserStatus("online");
-            VerifyUserExistance();
-        }
+        VerifyUserExistance();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        /*ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
 
         // check if the app is still visible
@@ -92,38 +91,41 @@ public class MainActivity extends AppCompatActivity {
             updateUserStatus("offline");
         } else {
             // app is still visible, switched to other activity
-        }
+        }*/
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        /*FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null) {
             updateUserStatus("offline");
-        }
+        }*/
     }
 
     private void VerifyUserExistance() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-
-        String currentUserID = currentUser.getUid();
-        rootRef.child("Users").child(currentUserID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.child("name").exists()) {
-                    Toast.makeText(MainActivity.this, "Welcome" , Toast.LENGTH_LONG).show();
-                } else{
-                    SendUserToSettingsActivity();
+        UserInformationDB userInformationDB = new Select()
+                .from(UserInformationDB.class)
+                .executeSingle();
+        if(userInformationDB != null) {
+            if (!userInformationDB.uid.isEmpty() && userInformationDB.uid != null && userInformationDB.isloggedin) {
+                currentUserID = userInformationDB.uid;
+                if(userInformationDB.username.equals("anon")) {
+                    System.out.println("User " + userInformationDB.uid  + " didnt set username");
+                    SendUserToSettingsActivity(currentUserID);
+                    return;
                 }
+                //Stay in MainActivity;
+                System.out.println("UserInformation: " + userInformationDB.toString());
+            } else {//user didnt register yet!
+                System.out.println("UserInformation: Logged out! " + userInformationDB.toString());
+                SendUserToLoginActivity();//if user is not logged in
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        } else {//user didnt register yet!
+            System.out.println("UserInformation: Not Registered Yet");
+            SendUserToLoginActivity();//if user is not logged in
+        }
     }
 
     private void SendUserToLoginActivity() {
@@ -133,8 +135,9 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
-    private void SendUserToSettingsActivity() {
+    private void SendUserToSettingsActivity(String uid) {
         Intent settingsIntent = new Intent(MainActivity.this, SettingsActivity.class);
+        settingsIntent.putExtra("uid", uid);
         startActivity(settingsIntent);
     }
 
@@ -155,11 +158,15 @@ public class MainActivity extends AppCompatActivity {
             case R.id.main_logout_option:
                 updateUserStatus("offline");
                 mAuth.signOut();
+                new Update(UserInformationDB.class)
+                        .set("isloggedin = ?", false)
+                        .where("uid = ?", currentUserID)
+                        .execute();
                 SendUserToLoginActivity();
                 break;
 
             case R.id.main_settings_option:
-                SendUserToSettingsActivity();
+                SendUserToSettingsActivity(currentUserID);
                 break;
             case R.id.main_find_friends_option:
                 SendUserToFindFriendsActivity();
@@ -216,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateUserStatus(String state){
-        String saveCurrentTime, saveCurrentDate;
+        /*String saveCurrentTime, saveCurrentDate;
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat currentDate = new SimpleDateFormat("dd-MM-yyy");
         saveCurrentDate = currentDate.format(calendar.getTime());
@@ -231,6 +238,6 @@ public class MainActivity extends AppCompatActivity {
         currentUserID = mAuth.getCurrentUser().getUid();
         rootRef.child("Users").child(currentUserID).child("userState")
                 .updateChildren(onlineStatMap);
-
+*/
     }
 }

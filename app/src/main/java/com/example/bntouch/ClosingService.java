@@ -37,8 +37,6 @@ public class ClosingService extends Service {
 
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
-        currentUserID = mAuth.getCurrentUser().getUid();
-
         String saveCurrentTime, saveCurrentDate;
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat currentDate = new SimpleDateFormat("dd-MM-yyy");
@@ -51,9 +49,9 @@ public class ClosingService extends Service {
         onlineStatMap.put("time", saveCurrentTime);
         onlineStatMap.put("date", saveCurrentDate);
         onlineStatMap.put("state", state);
-        currentUserID = mAuth.getCurrentUser().getUid();
-        rootRef.child("Users").child(currentUserID).child("userState")
-                .updateChildren(onlineStatMap);
+        //currentUserID = mAuth.getCurrentUser().getUid();
+        /*rootRef.child("Users").child(currentUserID).child("userState")
+                .updateChildren(onlineStatMap);*/
 
     }
 }

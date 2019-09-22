@@ -9,9 +9,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.bntouch.functionshelper.ChatRequestsHelper;
-import com.example.bntouch.functionshelper.StaticVariales;
-import com.example.bntouch.interfaces.ChatRequestsInterface;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,7 +24,7 @@ import java.util.HashMap;
 public class ProfileActivity extends AppCompatActivity {
 
 
-    ChatRequestsHelper chatRequestsHelper;
+    //ChatRequestsHelper chatRequestsHelper;
     private String receiver_user_id, sender_user_id, current_state;
 
     private CircleImageView visit_profile_image;
@@ -48,7 +45,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void InittializeFields(){
-        chatRequestsHelper = new ChatRequestsHelper(getResources().getString(R.string.request_type));
+        //chatRequestsHelper = new ChatRequestsHelper(getResources().getString(R.string.request_type));
         mAuth = FirebaseAuth.getInstance();
         userRef = FirebaseDatabase.getInstance().getReference().child("Users");
 
@@ -60,7 +57,7 @@ public class ProfileActivity extends AppCompatActivity {
         visit_profile_status = (TextView)findViewById(R.id.visit_profile_status);
         send_message_request_button = (Button)findViewById(R.id.send_message_request_button);
         decline_message_request_button = (Button)findViewById(R.id.decline_message_request_button);
-        current_state = StaticVariales.CURRENT_STATE_NEW;
+        //current_state = StaticVariales.CURRENT_STATE_NEW;
     }
 
     private void LoadVisitedUserInfo(String visit_user_id){
@@ -89,7 +86,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void ManageChatRequests() {
-        chatRequestsHelper.getConnectionHandler().getDatabaseReference().child(sender_user_id).addValueEventListener(new ValueEventListener() {
+       /* chatRequestsHelper.getConnectionHandler().getDatabaseReference().child(sender_user_id).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists() && dataSnapshot.hasChild(receiver_user_id)){
@@ -143,7 +140,7 @@ public class ProfileActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     send_message_request_button.setEnabled(false);
-                    if(current_state.equals(StaticVariales.CURRENT_STATE_NEW)) {
+                    *//*if(current_state.equals(StaticVariales.CURRENT_STATE_NEW)) {
                         SendChatRequest();
                     }
                     else if(current_state.equals(StaticVariales.CURRENT_STATE_REQUEST_SENT)) {
@@ -154,12 +151,12 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                     else if(current_state.equals(StaticVariales.CURRENT_STATE_FRIENDS)){
                         RemoveSpecificContact();
-                    }
+                    }*//*
                 }
             });
         } else {
             send_message_request_button.setVisibility(View.INVISIBLE);
-        }
+        }*/
     }
 
     private void RemoveSpecificContact() {
@@ -189,7 +186,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void AcceptChatRequest() {
-        contactsRef.child(sender_user_id).child(receiver_user_id)
+        /*contactsRef.child(sender_user_id).child(receiver_user_id)
                                          .child("Contacts").setValue("Saved")
                                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                 @Override
@@ -218,11 +215,11 @@ public class ProfileActivity extends AppCompatActivity {
                                                                     });
                                                     }
                                                 }
-                                            });
+                                            });*/
     }
 
     private void CancelChatRequest() {
-        chatRequestsHelper.deleteChatRequest(sender_user_id, receiver_user_id, new ChatRequestsInterface() {
+        /*chatRequestsHelper.deleteChatRequest(sender_user_id, receiver_user_id, new ChatRequestsInterface() {
             @Override
             public void onSuccess() {
                 chatRequestsHelper.deleteChatRequest(receiver_user_id, sender_user_id, new ChatRequestsInterface() {
@@ -236,11 +233,11 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
         decline_message_request_button.setVisibility(View.INVISIBLE);
-        decline_message_request_button.setEnabled(false);
+        decline_message_request_button.setEnabled(false);*/
     }
 
     private void SendChatRequest() {
-        chatRequestsHelper.addChatRequest(sender_user_id, receiver_user_id, StaticVariales.SENT, new ChatRequestsInterface() {
+        /*chatRequestsHelper.addChatRequest(sender_user_id, receiver_user_id, StaticVariales.SENT, new ChatRequestsInterface() {
             @Override
             public void onSuccess() {
                 send_message_request_button.setText("Cancel Chat Request");
@@ -266,7 +263,7 @@ public class ProfileActivity extends AppCompatActivity {
                 });
             }
         });
-
+*/
     }
 }
 
