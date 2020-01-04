@@ -48,7 +48,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void InittializeFields(){
-        chatRequestsHelper = new ChatRequestsHelper(getResources().getString(R.string.request_type));
+        chatRequestsHelper = new ChatRequestsHelper(getResources().getString(R.string.requesttype));
         mAuth = FirebaseAuth.getInstance();
         userRef = FirebaseDatabase.getInstance().getReference().child("Users");
 

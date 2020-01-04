@@ -16,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.bntouch.functionshelper.ChatRequestsHelper;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -63,7 +62,7 @@ public class RequestFragment extends Fragment {
 
         contactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
 
-        chatRequestsHelper = new ChatRequestsHelper(getResources().getString(R.string.request_type));
+        chatRequestsHelper = new ChatRequestsHelper(getResources().getString(R.string.requesttype));
 
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
         return requestsFragmentView;
