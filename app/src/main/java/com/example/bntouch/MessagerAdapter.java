@@ -22,6 +22,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -31,12 +33,14 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class MessagerAdapter extends RecyclerView.Adapter<MessagerAdapter.MessageViewHolder> {
 
     private List<Messages> userMessagesList;
+    private LinkedHashMap<String, Messages> userHashMessages;
     private FirebaseAuth mAuth;
     private DatabaseReference usersRef;
 
     private static final String FILE_URL_IMAGE = "https://firebasestorage.googleapis.com/v0/b/bntouch-775e8.appspot.com/o/Image%20Files%2Ffile.png?alt=media&token=b497af95-451d-4352-91e3-0404b62a1be6";
-    public MessagerAdapter(List<Messages> userMessagesList) {
+    public MessagerAdapter(List<Messages> userMessagesList, LinkedHashMap<String, Messages> userHashMessages) {
         this.userMessagesList = userMessagesList;
+        this.userHashMessages = userHashMessages;
     }
 
     @NonNull
@@ -52,7 +56,6 @@ public class MessagerAdapter extends RecyclerView.Adapter<MessagerAdapter.Messag
     public void onBindViewHolder(@NonNull final MessageViewHolder holder, final int position) {
         String messageSenderId = mAuth.getCurrentUser().getUid();
         Messages messages = userMessagesList.get(position);
-
         String fromUserID = messages.getFrom();
         String fromMessageType = messages.getType();
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users").child(fromUserID);
@@ -345,8 +348,8 @@ public class MessagerAdapter extends RecyclerView.Adapter<MessagerAdapter.Messag
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()) {
-                    userMessagesList.remove(position);
-                    MessagerAdapter.this.notifyDataSetChanged();
+                    //userMessagesList.remove(position);
+                    //MessagerAdapter.this.notifyDataSetChanged();
                     Toast.makeText(holder.itemView.getContext(), "Message deleted successfully", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(holder.itemView.getContext(), "Error " + task.getException(), Toast.LENGTH_SHORT).show();
@@ -367,8 +370,8 @@ public class MessagerAdapter extends RecyclerView.Adapter<MessagerAdapter.Messag
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()) {
-                    userMessagesList.remove(position);
-                    MessagerAdapter.this.notifyDataSetChanged();
+                    //userMessagesList.remove(position);
+                   // MessagerAdapter.this.notifyDataSetChanged();
                     Toast.makeText(holder.itemView.getContext(), "Message deleted successfully", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(holder.itemView.getContext(), "Error " + task.getException(), Toast.LENGTH_SHORT).show();
@@ -390,8 +393,25 @@ public class MessagerAdapter extends RecyclerView.Adapter<MessagerAdapter.Messag
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()) {
-                    MessagerAdapter.this.notifyDataSetChanged();
-                    DeleteReceivedMessages(position , holder);
+                    //MessagerAdapter.this.notifyDataSetChanged();
+                    //userHashMessages.remove(userMessagesList.get(position).getMessageID());
+                } else {
+                    Toast.makeText(holder.itemView.getContext(), "Error " + task.getException(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        rootRef.child("Messages")
+                .child(userMessagesList.get(position).getTo())
+                .child(userMessagesList.get(position).getFrom())
+                .child(userMessagesList.get(position).getMessageID())
+                .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()) {
+                    //userMessagesList.remove(position);
+                    // MessagerAdapter.this.notifyDataSetChanged();
+                    Toast.makeText(holder.itemView.getContext(), "Message deleted successfully", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(holder.itemView.getContext(), "Error " + task.getException(), Toast.LENGTH_SHORT).show();
                 }

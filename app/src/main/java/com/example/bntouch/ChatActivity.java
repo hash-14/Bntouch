@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,6 +31,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -47,6 +49,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +67,9 @@ public class ChatActivity extends AppCompatActivity {
 
     private RecyclerView private_messages_list_of_users;
 
-    private final List<Messages> messagesList = new ArrayList<>();
+    private List<Messages> messagesList = new ArrayList<>();
+    private final LinkedHashMap<String, Messages> userHashMessages = new LinkedHashMap<>();
+
     private LinearLayoutManager linearLayoutManager;
     private MessagerAdapter messagerAdapter;
 
@@ -313,7 +318,7 @@ public class ChatActivity extends AppCompatActivity {
 
         private_messages_list_of_users = (RecyclerView)findViewById(R.id.private_messages_list_of_users);
 
-        messagerAdapter = new MessagerAdapter(messagesList);
+        messagerAdapter = new MessagerAdapter(messagesList, userHashMessages);
         linearLayoutManager = new LinearLayoutManager(this);
         private_messages_list_of_users.setLayoutManager(linearLayoutManager);
         private_messages_list_of_users.setAdapter(messagerAdapter);
@@ -334,7 +339,11 @@ public class ChatActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
                 Messages messages = dataSnapshot.getValue(Messages.class);
-                messagesList.add(messages);
+                messagesList.clear();
+                userHashMessages.put(messages.getMessageID(), messages);
+                messagesList.addAll(userHashMessages.values());
+                System.out.println("List: " + messagesList.toString());
+                //messagesList.add(messages);
 
                 messagerAdapter.notifyDataSetChanged();
 
@@ -343,11 +352,18 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                //messagesList.clear();
+                //messagesList.addAll(userHashMessages.values());
                 messagerAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                messagesList.clear();
+                Messages messages = dataSnapshot.getValue(Messages.class);
+                userHashMessages.remove(messages.getMessageID());
+                messagesList.addAll(userHashMessages.values());
+                messagerAdapter.notifyDataSetChanged();
                 /*for(int i = 0; i < messagesList.size(); i++) {
                     if(messagesList.get(i).getMessageID().equals(dataSnapshot.getKey())) {
                         messagesList.remove(i);
@@ -370,6 +386,34 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        updateUserStatus("online");
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> tasks = am.getRunningTasks(1);
+
+        // check if the app is still visible
+        if (!tasks.get(0).topActivity.getPackageName().equals(getPackageName())) {
+            // for some reason(HOME, BACK, RECENT APPS, etc.) the app is no longer visible
+            // do your thing here
+            updateUserStatus("offline");
+        } else {
+            // app is still visible, switched to other activity
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null) {
+            updateUserStatus("offline");
+        }
     }
 
     private void SendMessage() {
@@ -437,5 +481,24 @@ public class ChatActivity extends AppCompatActivity {
 
                     }
                 });
+    }
+
+    private void updateUserStatus(String state){
+        String saveCurrentTime, saveCurrentDate;
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat currentDate = new SimpleDateFormat("dd-MM-yyy");
+        saveCurrentDate = currentDate.format(calendar.getTime());
+
+        SimpleDateFormat currentTime = new SimpleDateFormat("hh:mm a");
+        saveCurrentTime = currentTime.format(calendar.getTime());
+
+        HashMap<String, Object> onlineStatMap =  new HashMap<>();
+        onlineStatMap.put("time", saveCurrentTime);
+        onlineStatMap.put("date", saveCurrentDate);
+        onlineStatMap.put("state", state);
+        String currentUserID = mAuth.getCurrentUser().getUid();
+        rootRef.child("Users").child(currentUserID).child("userState")
+                .updateChildren(onlineStatMap);
+
     }
 }

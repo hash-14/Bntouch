@@ -2,7 +2,7 @@ package com.example.bntouch.functionshelper;
 
 import com.example.bntouch.dbaccess.UsersDB;
 import com.example.bntouch.dbconnections.ConnectionHandler;
-import com.example.bntouch.interfaces.CallBackOnComplete;
+import com.example.bntouch.interfaces.ChatRequestsInterface;
 import com.example.bntouch.interfaces.UsersInterface;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -20,7 +20,7 @@ public class UsersHelper extends UsersDB {
         this.connectionHandler = new ConnectionHandler("Users");
     }
 
-    public void addUser(String userid, final CallBackOnComplete callback){
+    public void addUser(String userid, final ChatRequestsInterface callback){
         try {
             this.getDeviceID(new UsersInterface() {
                 @Override

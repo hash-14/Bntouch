@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.example.bntouch.functionshelper.ChatRequestsHelper;
 import com.example.bntouch.functionshelper.StaticVariales;
-import com.example.bntouch.interfaces.CallBackOnComplete;
+import com.example.bntouch.interfaces.ChatRequestsInterface;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -48,7 +48,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void InittializeFields(){
-        chatRequestsHelper = new ChatRequestsHelper("request_type");
+        chatRequestsHelper = new ChatRequestsHelper(getResources().getString(R.string.request_type));
         mAuth = FirebaseAuth.getInstance();
         userRef = FirebaseDatabase.getInstance().getReference().child("Users");
 
@@ -201,9 +201,9 @@ public class ProfileActivity extends AppCompatActivity {
                                                                         @Override
                                                                         public void onComplete(@NonNull Task<Void> task) {
                                                                             if(task.isSuccessful()) {
-                                                                                chatRequestsHelper.deleteChatRequest(sender_user_id, receiver_user_id, new CallBackOnComplete() {
+                                                                                chatRequestsHelper.deleteChatRequest(sender_user_id, receiver_user_id, new ChatRequestsInterface() {
                                                                                     @Override
-                                                                                    public void callBackResult() {
+                                                                                    public void onSuccess() {
                                                                                         send_message_request_button.setEnabled(true);
                                                                                         current_state = "friends";
                                                                                         send_message_request_button.setText("Unfriend");
@@ -222,12 +222,12 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void CancelChatRequest() {
-        chatRequestsHelper.deleteChatRequest(sender_user_id, receiver_user_id, new CallBackOnComplete() {
+        chatRequestsHelper.deleteChatRequest(sender_user_id, receiver_user_id, new ChatRequestsInterface() {
             @Override
-            public void callBackResult() {
-                chatRequestsHelper.deleteChatRequest(receiver_user_id, sender_user_id, new CallBackOnComplete() {
+            public void onSuccess() {
+                chatRequestsHelper.deleteChatRequest(receiver_user_id, sender_user_id, new ChatRequestsInterface() {
                     @Override
-                    public void callBackResult() {
+                    public void onSuccess() {
                         send_message_request_button.setEnabled(true);
                         current_state="new";
                         send_message_request_button.setText("Send Message");
@@ -240,13 +240,13 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void SendChatRequest() {
-        chatRequestsHelper.addChatRequest(sender_user_id, receiver_user_id, StaticVariales.SENT, new CallBackOnComplete() {
+        chatRequestsHelper.addChatRequest(sender_user_id, receiver_user_id, StaticVariales.SENT, new ChatRequestsInterface() {
             @Override
-            public void callBackResult() {
+            public void onSuccess() {
                 send_message_request_button.setText("Cancel Chat Request");
-                chatRequestsHelper.addChatRequest(receiver_user_id, sender_user_id, StaticVariales.RECEIVED, new CallBackOnComplete() {
+                chatRequestsHelper.addChatRequest(receiver_user_id, sender_user_id, StaticVariales.RECEIVED, new ChatRequestsInterface() {
                     @Override
-                    public void callBackResult() {
+                    public void onSuccess() {
                         HashMap<String, String> chatNotificationMap = new HashMap<>();
                         chatNotificationMap.put("from", sender_user_id);
                         chatNotificationMap.put("type", "request");

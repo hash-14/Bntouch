@@ -2,9 +2,14 @@ package com.example.bntouch.functionshelper;
 
 import com.example.bntouch.dbaccess.ChatRequestsDB;
 import com.example.bntouch.dbconnections.ConnectionHandler;
-import com.example.bntouch.interfaces.CallBackOnComplete;
+import com.example.bntouch.interfaces.ChatRequestsInterface;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.LinkedHashMap;
 
 import androidx.annotation.NonNull;
 
@@ -16,7 +21,7 @@ public class ChatRequestsHelper extends ChatRequestsDB {
         this.connectionHandler = new ConnectionHandler("Chat Requests");
     }
 
-    public void addChatRequest(String senderid, String recieverid, String request_type_value, final CallBackOnComplete callBackOnComplete) {
+    public void addChatRequest(String senderid, String recieverid, String request_type_value, final ChatRequestsInterface chatRequestsInterface) {
         try {
             this.connectionHandler.getDatabaseReference()
                     .child(senderid)
@@ -27,7 +32,8 @@ public class ChatRequestsHelper extends ChatRequestsDB {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                callBackOnComplete.callBackResult();
+                                System.out.println("Chat request added successfully");
+                                chatRequestsInterface.onSuccess();
                             }
                         }
                     });
@@ -38,7 +44,7 @@ public class ChatRequestsHelper extends ChatRequestsDB {
         }
     }
 
-    public void deleteChatRequest(String senderid, String recieverid, final CallBackOnComplete callBackOnComplete) {
+    public void deleteChatRequest(String senderid, String recieverid, final ChatRequestsInterface chatRequestsInterface) {
         try{
             this.connectionHandler.getDatabaseReference()
                     .child(senderid)
@@ -47,7 +53,8 @@ public class ChatRequestsHelper extends ChatRequestsDB {
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            callBackOnComplete.callBackResult();
+                            System.out.println("Chat request deleted successfully from first side");
+                            chatRequestsInterface.onSuccess();
                         }
                     });
         }
@@ -59,6 +66,19 @@ public class ChatRequestsHelper extends ChatRequestsDB {
         }
     }
 
+    public void removeBothChatRequest(final String senederid, final String receiverid) {
+        this.deleteChatRequest(senederid, receiverid, new ChatRequestsInterface() {
+            @Override
+            public void onSuccess() {
+                ChatRequestsHelper.this.deleteChatRequest(receiverid, senederid, new ChatRequestsInterface() {
+                    @Override
+                    public void onSuccess() {
+                        System.out.println("Chat request deleted successfully from both sides");
+                    }
+                });
+            }
+        });
+    }
     public ConnectionHandler getConnectionHandler(){
         return this.connectionHandler;
     }
